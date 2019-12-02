@@ -16,9 +16,11 @@ namespace FbxSDK
 		Node(Node^ parent, FbxNode* node) : parent(parent), node(node) {}
 
 	public:
-		Mesh^ FindMesh();
 		Node^ GetChild(int index);
 		Node^ GetParent();
 		int GetChildCount();
+
+		bool IsMesh();
+		Mesh^ GetMesh();
 	};
 }

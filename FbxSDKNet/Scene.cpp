@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Scene.h"
 #include "Manager.h"
-#include "Node.h"
 #include "Utils.h"
+#include "Node.h"
 
 using namespace FbxSDK;
 
