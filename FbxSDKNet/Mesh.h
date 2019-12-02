@@ -73,6 +73,7 @@ namespace FbxSDK
 		Mesh(FbxMesh* mesh);
 
 	public:
+		array<int>^ indices;
 		array<Vector3>^ vertices;
 		array<Vector3>^ normals;
 		array<Vector3>^ binoramls;
