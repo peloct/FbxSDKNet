@@ -1,174 +1,147 @@
 #include "pch.h"
-#include "Mesh.h"
 #include "Utils.h"
-#include <string>
+#include "Mesh.h"
+#include "Cluster.h"
 
 using namespace FbxSDK;
-using namespace System;
-using namespace System::Collections::Generic;
 
-Vector3 ReadNormal(FbxMesh* mesh, int controlPointIndex, int vertexIndex);
-Vector3 ReadBinormal(FbxMesh* mesh, int controlPointIndex, int vertexIndex);
-Vector3 ReadTangent(FbxMesh* mesh, int controlPointIndex, int vertexIndex);
-Vector2 ReadUV(FbxMesh* mesh, int controlPointIndex, int uvIndex);
+Vector3 ReadNormal(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex);
+Vector3 ReadBinormal(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex);
+Vector3 ReadTangent(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex);
+Vector2 ReadUV(FbxMesh* mesh, int elementIndex, int controlPointIndex, int uvIndex);
+Color ReadColor(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex);
 
-template <typename GeometryElement, unsigned int Dimmension>
-bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex, int vertexIndex, float& x, float& y, float& z);
+template <typename GeometryElement, typename ValueType>
+bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex, int vertexIndex, ValueType& result);
 
-String^ Vector2::ToString()
+int Mesh::GetPolygonCount()
 {
-	std::string str = "{ " + std::to_string(x) + ", " + std::to_string(y) + " }";
-	return gcnew String(str.c_str());
+	return mesh->GetPolygonCount();
 }
 
-String^ Vector3::ToString()
+int Mesh::GetElementCount(VertexElementType elementType)
 {
-	std::string str = "{ " + std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + " }";
-	return gcnew String(str.c_str());
-}
-
-Mesh::Mesh(FbxMesh* mesh) : mesh(mesh)
-{
-	FbxVector4* controlPoints = mesh->GetControlPoints();
-
-	int polygonCount = mesh->GetPolygonCount();
-
-	bool hasNoraml = mesh->GetElementNormalCount() > 0;
-	bool hasBinormal = mesh->GetElementBinormalCount() > 0;
-	bool hasTangent = mesh->GetElementTangentCount() > 0;
-	bool hasUV = mesh->GetElementUVCount() > 0;
-
-	bool hasPolygonVertexMapping = false;
-
-	if (hasNoraml)
-		hasPolygonVertexMapping |= mesh->GetElementNormal(0)->GetMappingMode() == FbxGeometryElement::eByPolygonVertex;
-	if (hasBinormal)
-		hasPolygonVertexMapping |= mesh->GetElementBinormal(0)->GetMappingMode() == FbxGeometryElement::eByPolygonVertex;
-	if (hasTangent)
-		hasPolygonVertexMapping |= mesh->GetElementTangent(0)->GetMappingMode() == FbxGeometryElement::eByPolygonVertex;
-	if (hasUV)
-		hasPolygonVertexMapping |= mesh->GetElementUV(0)->GetMappingMode() == FbxGeometryElement::eByPolygonVertex;
-
-	if (hasPolygonVertexMapping)
+	switch (elementType)
 	{
-		indices = gcnew array<int>(3 * polygonCount);
-		vertices = gcnew array<Vector3>(3 * polygonCount);
-		if (hasNoraml)
-			normals = gcnew array<Vector3>(3 * polygonCount);
-		if (hasBinormal)
-			binoramls = gcnew array<Vector3>(3 * polygonCount);
-		if (hasTangent)
-			tangents = gcnew array<Vector3>(3 * polygonCount);
-		if (hasUV)
-			uvs = gcnew array<Vector2>(3 * polygonCount);
-
-		int vertexIndex = 0;
-
-		for (int i = 0; i < polygonCount; ++i)
-		{
-			for (int j = 0; j < 3; ++j)
-			{
-				int controlPointIndex = mesh->GetPolygonVertex(i, j);
-				FbxVector4* point = &controlPoints[controlPointIndex];
-
-				indices[vertexIndex] = vertexIndex;
-				vertices[vertexIndex] = Vector3(point->mData[0], point->mData[1], point->mData[2]);
-				if (hasNoraml)
-					normals[vertexIndex] = ReadNormal(mesh, controlPointIndex, vertexIndex);
-				if (hasBinormal)
-					binoramls[vertexIndex] = ReadBinormal(mesh, controlPointIndex, vertexIndex);
-				if (hasTangent)
-					tangents[vertexIndex] = ReadTangent(mesh, controlPointIndex, vertexIndex);
-				if (hasUV)
-					uvs[vertexIndex] = ReadUV(mesh, controlPointIndex, mesh->GetTextureUVIndex(i, j));
-
-				vertexIndex++;
-			}
-		}
+	case VertexElementType::Binormal:
+		return mesh->GetElementBinormalCount();
+	case VertexElementType::Tangent:
+		return mesh->GetElementTangentCount();
+	case VertexElementType::Color:
+		return mesh->GetElementVertexColorCount();
+	case VertexElementType::UV:
+		return mesh->GetElementUVCount();
+	case VertexElementType::MaterialMapping:
+		return mesh->GetElementMaterialCount();
+	default:
+		break;
 	}
-	else
-	{
-		int controlPointCount = mesh->GetControlPointsCount();
 
-		indices = gcnew array<int>(3 * polygonCount);
-		vertices = gcnew array<Vector3>(controlPointCount);
-		if (hasNoraml)
-			normals = gcnew array<Vector3>(controlPointCount);
-		if (hasBinormal)
-			binoramls = gcnew array<Vector3>(controlPointCount);
-		if (hasTangent)
-			tangents = gcnew array<Vector3>(controlPointCount);
-		if (hasUV)
-			uvs = gcnew array<Vector2>(controlPointCount);
-
-		for (int i = 0; i < controlPointCount; ++i)
-		{
-			FbxVector4* point = &controlPoints[i];
-			vertices[i] = Vector3(point->mData[0], point->mData[1], point->mData[2]);
-			if (hasNoraml)
-				normals[i] = ReadNormal(mesh, i, -1);
-			if (hasBinormal)
-				binoramls[i] = ReadBinormal(mesh, i, -1);
-			if (hasTangent)
-				tangents[i] = ReadTangent(mesh, i, -1);
-			if (hasUV)
-				uvs[i] = ReadUV(mesh, i, -1);
-		}
-
-		int vertexIndex = 0;
-		for (int i = 0; i < polygonCount; ++i)
-			for (int j = 0; j < 3; ++j)
-				indices[vertexIndex++] = mesh->GetPolygonVertex(i, j);
-	}
+	return 0;
 }
 
-String^ Mesh::GetName()
+Vector3 Mesh::GetCoordinate(int polygonIndex, int positionInPolygon)
 {
-	return gcnew String(mesh->GetName());
+	FbxVector4 vector = mesh->GetControlPoints()[mesh->GetPolygonVertex(polygonIndex, positionInPolygon)];
+	return Vector3(vector[0], vector[1], vector[2]);
 }
 
-Vector3 ReadNormal(FbxMesh* mesh, int controlPointIndex, int vertexIndex)
+Vector3 Mesh::GetNormal(int elementIndex, int polygonIndex, int positionInPolygon)
 {
-	FbxGeometryElementNormal* normal = mesh->GetElementNormal(0);
-	float x, y, z;
-	if (ReadGeometryElement<FbxGeometryElementNormal, 3>(normal, controlPointIndex, vertexIndex, x, y, z))
-		return Vector3(x, y, z);
+	return ReadNormal(mesh, elementIndex, mesh->GetPolygonVertex(polygonIndex, positionInPolygon), 3 * polygonIndex + positionInPolygon);
+}
+
+Vector3 Mesh::GetBinormal(int elementIndex, int polygonIndex, int positionInPolygon)
+{
+	return ReadBinormal(mesh, elementIndex, mesh->GetPolygonVertex(polygonIndex, positionInPolygon), 3 * polygonIndex + positionInPolygon);
+}
+
+Vector3 Mesh::GetTangent(int elementIndex, int polygonIndex, int positionInPolygon)
+{
+	return ReadTangent(mesh, elementIndex, mesh->GetPolygonVertex(polygonIndex, positionInPolygon), 3 * polygonIndex + positionInPolygon);
+}
+
+Vector2 Mesh::GetUV(int elementIndex, int polygonIndex, int positionInPolygon)
+{
+	return ReadUV(mesh, elementIndex, mesh->GetPolygonVertex(polygonIndex, positionInPolygon), mesh->GetTextureUVIndex(polygonIndex, positionInPolygon));
+}
+
+Color Mesh::GetColor(int elementIndex, int polygonIndex, int positionInPolygon)
+{
+	return ReadColor(mesh, elementIndex, mesh->GetPolygonVertex(polygonIndex, positionInPolygon), 3 * polygonIndex + positionInPolygon);
+}
+
+int Mesh::GetMaterialMapping(int elementIndex, int polygonIndex)
+{
+	FbxGeometryElementMaterial* material = mesh->GetElementMaterial(elementIndex);
+	return material->GetIndexArray().GetAt(polygonIndex);
+}
+
+int Mesh::GetSkinDeformerCount()
+{
+	return mesh->GetDeformerCount(FbxDeformer::eSkin);
+}
+
+int Mesh::GetClusterCount(int skinDeformerIndex)
+{
+	return ((FbxSkin*)mesh->GetDeformer(skinDeformerIndex, FbxDeformer::eSkin))->GetClusterCount();
+}
+
+Cluster^ Mesh::GetCluster(int skinDeformerIndex, int clusterIndex)
+{
+	return gcnew Cluster(((FbxSkin*)mesh->GetDeformer(skinDeformerIndex, FbxDeformer::eSkin))->GetCluster(clusterIndex));
+}
+
+Vector3 ReadNormal(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex)
+{
+	FbxGeometryElementNormal* normal = mesh->GetElementNormal(elementIndex);
+	FbxVector4 result;
+	if (ReadGeometryElement(normal, controlPointIndex, vertexIndex, result))
+		return Vector3(result[0], result[1], result[2]);
 	return Vector3(0, 0, 0);
 }
 
-Vector3 ReadBinormal(FbxMesh* mesh, int controlPointIndex, int vertexIndex)
+Vector3 ReadBinormal(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex)
 {
-	FbxGeometryElementBinormal* binormal = mesh->GetElementBinormal(0);
-	float x, y, z;
-	if (ReadGeometryElement<FbxGeometryElementBinormal, 3>(binormal, controlPointIndex, vertexIndex, x, y, z))
-		return Vector3(x, y, z);
+	FbxGeometryElementBinormal* binormal = mesh->GetElementBinormal(elementIndex);
+	FbxVector4 result;
+	if (ReadGeometryElement(binormal, controlPointIndex, vertexIndex, result))
+		return Vector3(result[0], result[1], result[2]);
 	return Vector3(0, 0, 0);
 }
 
-Vector3 ReadTangent(FbxMesh* mesh, int controlPointIndex, int vertexIndex)
+Vector3 ReadTangent(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex)
 {
-	FbxGeometryElementTangent* tangent = mesh->GetElementTangent(0);
-	float x, y, z;
-	if (ReadGeometryElement<FbxGeometryElementTangent, 3>(tangent, controlPointIndex, vertexIndex, x, y, z))
-		return Vector3(x, y, z);
+	FbxGeometryElementTangent* tangent = mesh->GetElementTangent(elementIndex);
+	FbxVector4 result;
+	if (ReadGeometryElement(tangent, controlPointIndex, vertexIndex, result))
+		return Vector3(result[0], result[1], result[2]);
 	return Vector3(0, 0, 0);
 }
 
-Vector2 ReadUV(FbxMesh* mesh, int controlPointIndex, int uvIndex)
+Vector2 ReadUV(FbxMesh* mesh, int elementIndex, int controlPointIndex, int uvIndex)
 {
-	FbxGeometryElementUV* uv = mesh->GetElementUV(0);
-	float x, y, z;
-	if (ReadGeometryElement<FbxGeometryElementUV, 2>(uv, controlPointIndex, uvIndex, x, y, z))
-		return Vector2(x, y);
+	FbxGeometryElementUV* uv = mesh->GetElementUV(elementIndex);
+	FbxVector2 result;
+	if (ReadGeometryElement(uv, controlPointIndex, uvIndex, result))
+		return Vector2(result[0], result[1]);
 	return Vector2(0, 0);
 }
 
-template <typename GeometryElement, unsigned int Dimmension>
-bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex, int vertexIndex, float& x, float& y, float& z)
+Color ReadColor(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex)
 {
-	x = 0.0f;
-	y = 0.0f;
-	z = 0.0f;
+	FbxGeometryElementVertexColor* color = mesh->GetElementVertexColor(elementIndex);
+	FbxColor result;
+	if (ReadGeometryElement(color, controlPointIndex, vertexIndex, result))
+		return Color(result[0], result[1], result[2], result[3]);
+	return Color(0, 0, 0, 0);
+}
+
+template <typename GeometryElement, typename ValueType>
+bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex, int vertexIndex, ValueType& result)
+{
+	if (!geometryElement)
+		return false;
 
 	switch (geometryElement->GetMappingMode())
 	{
@@ -177,18 +150,14 @@ bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex
 		{
 		case FbxGeometryElement::eDirect:
 		{
-			x = geometryElement->GetDirectArray().GetAt(controlPointIndex).mData[0];
-			y = geometryElement->GetDirectArray().GetAt(controlPointIndex).mData[1];
-			z = Dimmension >= 3 ? geometryElement->GetDirectArray().GetAt(controlPointIndex).mData[2] : 0.0f;
+			result = geometryElement->GetDirectArray().GetAt(controlPointIndex);
 			return true;
 		}
 		break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int index = geometryElement->GetIndexArray().GetAt(controlPointIndex);
-			x = geometryElement->GetDirectArray().GetAt(index).mData[0];
-			y = geometryElement->GetDirectArray().GetAt(index).mData[1];
-			z = Dimmension == 3 ? geometryElement->GetDirectArray().GetAt(index).mData[2] : 0;
+			result = geometryElement->GetDirectArray().GetAt(index);
 			return true;
 		}
 		break;
@@ -199,18 +168,14 @@ bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex
 		{
 		case FbxGeometryElement::eDirect:
 		{
-			x = geometryElement->GetDirectArray().GetAt(vertexIndex).mData[0];
-			y = geometryElement->GetDirectArray().GetAt(vertexIndex).mData[1];
-			z = Dimmension == 3 ? geometryElement->GetDirectArray().GetAt(vertexIndex).mData[2] : 0;
+			result = geometryElement->GetDirectArray().GetAt(vertexIndex);
 			return true;
 		}
 		break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int index = geometryElement->GetIndexArray().GetAt(vertexIndex);
-			x = geometryElement->GetDirectArray().GetAt(index).mData[0];
-			y = geometryElement->GetDirectArray().GetAt(index).mData[1];
-			z = Dimmension == 3 ? geometryElement->GetDirectArray().GetAt(index).mData[2] : 0;
+			result = geometryElement->GetDirectArray().GetAt(index);
 			return true;
 		}
 		break;
@@ -222,6 +187,7 @@ bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex
 	return false;
 }
 
+/*
 void ProcessSkeletonHierarchy(FbxNode* inRootNode)
 {
 	for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
@@ -344,4 +310,4 @@ void ProcessJointsAndAnimations(FbxNode* inNode)
 			itr->second->mBlendingInfo.push_back(currBlendingIndexWeightPair);
 		}
 	}
-} 
+} */

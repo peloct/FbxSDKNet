@@ -17,5 +17,5 @@ Scene::!Scene()
 
 Node^ Scene::GetRootNode()
 {
-	return gcnew Node(nullptr, sceneReference->scene->GetRootNode());
+	return gcnew Node(sceneReference->scene->GetRootNode());
 }

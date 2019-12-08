@@ -37,12 +37,15 @@ namespace FbxSDK
 	public ref class Manager
 	{
 	private:
-		FbxManager* fbxManager;
+		FbxManager* manager;
+		FbxGeometryConverter* converter;
+
 		List<SceneReference^>^ sceneReferenceList;
 
-		Manager(FbxManager* fbxManager)
+		Manager(FbxManager* manager)
 		{
-			this->fbxManager = fbxManager;
+			this->manager = manager;
+			converter = new FbxGeometryConverter(manager);
 			sceneReferenceList = gcnew List<SceneReference^>();
 		}
 
@@ -58,6 +61,5 @@ namespace FbxSDK
 		String^ GetVersion(bool pFull);
 
 		Scene^ CreateSceneFromFile(String^ path);
-		Scene^ CreateScene(String^ name);
 	};
 }

@@ -1,8 +1,7 @@
 #pragma once
+#include <fbxsdk.h>
 
 using namespace System;
-
-#include <fbxsdk.h>
 
 namespace FbxSDK
 {

@@ -24,7 +24,8 @@ Manager::!Manager()
 
 	DebugLine("Manager Disposed");
 	
-	fbxManager->Destroy();
+	delete converter;
+	manager->Destroy();
 }
 
 String^ Manager::GetVersion()
@@ -34,7 +35,7 @@ String^ Manager::GetVersion()
 
 String^ Manager::GetVersion(bool pFull)
 {
-	String^ clistr = gcnew String(fbxManager->GetVersion(pFull));
+	String^ clistr = gcnew String(manager->GetVersion(pFull));
 	return clistr;
 }
 
@@ -58,9 +59,9 @@ SceneReference^ Manager::AddSceneReference(FbxScene* scene)
 Scene^ Manager::CreateSceneFromFile(String^ path)
 {
 	String^ fileName = Path::GetFileNameWithoutExtension(path);
-	FbxImporter* importer = FbxImporter::Create(fbxManager, "Importer");
+	FbxImporter* importer = FbxImporter::Create(manager, "Importer");
 	
-	bool isSuccess = importer->Initialize(StringToCStr(path), -1, fbxManager->GetIOSettings());
+	bool isSuccess = importer->Initialize(StringToCStr(path), -1, manager->GetIOSettings());
 
 	if (!isSuccess)
 	{
@@ -68,7 +69,7 @@ Scene^ Manager::CreateSceneFromFile(String^ path)
 		return nullptr;
 	}
 
-	FbxScene* fbxScene = FbxScene::Create(fbxManager, StringToCStr(fileName));
+	FbxScene* fbxScene = FbxScene::Create(manager, StringToCStr(fileName));
 	isSuccess = importer->Import(fbxScene);
 
 	if (!isSuccess)
@@ -80,11 +81,8 @@ Scene^ Manager::CreateSceneFromFile(String^ path)
 
 	importer->Destroy();
 
-	return gcnew Scene(this, AddSceneReference(fbxScene));
-}
-
-Scene^ Manager::CreateScene(String^ name)
-{
-	FbxScene* fbxScene = FbxScene::Create(fbxManager, StringToCStr(name));
-	return gcnew Scene(this, AddSceneReference(fbxScene));
+	// Support triangulated geometry only...
+	if (converter->Triangulate(fbxScene, true, false))
+		return gcnew Scene(this, AddSceneReference(fbxScene));
+	return nullptr;
 }
