@@ -25,10 +25,8 @@ namespace FbxSDK
 
 	public ref class Node : Object
 	{
-	private:
-		FbxNode* node;
-
 	internal:
+		FbxNode* node;
 		Node(FbxNode* node) : Object(node), node(node) {}
 
 	public:

@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationEvaluator.h" />
     <ClInclude Include="Cluster.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Material.h" />
@@ -156,6 +157,8 @@
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimationEvaluator.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="Cluster.cpp" />
     <ClCompile Include="Manager.cpp" />

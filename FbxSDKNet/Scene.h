@@ -8,6 +8,8 @@ namespace FbxSDK
 	ref class Manager;
 	ref class SceneReference;
 	ref class Node;
+	ref class AnimationStack;
+	ref class AnimationEvaluator;
 
 	public ref class Scene
 	{
@@ -23,5 +25,9 @@ namespace FbxSDK
 
 	public:
 		Node^ GetRootNode();
+		
+		int GetAnimStackCount();
+		AnimationStack^ GetAnimStack(int index);
+		AnimationEvaluator^ GetAnimEvaluator();
 	};
 }

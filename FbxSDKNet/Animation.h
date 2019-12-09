@@ -26,21 +26,42 @@ namespace FbxSDK
 		LightFog,
 		CameraFieldOfViewX,
 		CameraFieldOfViewY,
-		CameraFieldOfViewZ,
 		CameraOpticalCenterX,
 		CameraOpticalCenterY,
-		CameraOpticalCenterZ,
 		CameraRoll,
 		Count
 	};
 
-	public ref class AnimationCurve
+	public enum class AnimationInterpolationType
 	{
-
+		InterpolationConstant = 0x00000002,
+		InterpolationLinear = 0x00000004,
+		InterpolationCubic = 0x00000008
 	};
 
-	public ref class AnimationLayer
+	public ref class AnimationCurve : Object
 	{
+	private:
+		FbxAnimCurve* curve;
+
+	internal:
+		AnimationCurve(FbxAnimCurve* curve) : Object(curve), curve(curve) {}
+
+	public:
+		int GetKeyCount();
+		double GetKeyTimeSecond(int index);
+		double GetKeyValue(int index);
+		AnimationInterpolationType GetKeyInterpolation(int index);
+	};
+
+	public ref class AnimationLayer : Object
+	{
+	private:
+		FbxAnimLayer* layer;
+
+	internal:
+		AnimationLayer(FbxAnimLayer* layer) : Object(layer), layer(layer) {}
+
 	public:
 		AnimationCurve^ GetAnimationCurve(Node^ node, AnimationCurveChannel curveChannel);
 	};
