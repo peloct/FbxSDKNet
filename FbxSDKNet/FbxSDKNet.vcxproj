@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Cluster.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="Material.h" />

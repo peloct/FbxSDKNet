@@ -25,7 +25,8 @@ namespace FbxSDK
 		TransparentColor,
 		TransparencyFactor,
 		Reflection,
-		ReflectionFactor
+		ReflectionFactor,
+		Count
 	};
 
 	public ref class Material : Object
