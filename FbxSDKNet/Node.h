@@ -3,6 +3,7 @@
 #include <fbxsdk.h>
 #include "Types.h"
 #include "Object.h"
+#include "Time.h"
 
 using namespace System;
 
@@ -11,6 +12,7 @@ namespace FbxSDK
 	ref class Mesh;
 	ref class NodeAttribute;
 	ref class Material;
+	ref class Pose;
 
 	public enum class RotationOrder
 	{
@@ -34,15 +36,20 @@ namespace FbxSDK
 		Node^ GetParent();
 		int GetChildCount();
 
+		Node^ GetTarget();
+
 		NodeAttribute^ GetAttribute();
 
-		Vector3 GetTranslation();
-		Vector3 GetRotation();
-		Vector3 GetScaling();
+		Vector3 GetGeometricTranslation();
+		Vector3 GetGeometricRotation();
+		Vector3 GetGeometricScaling();
+		Matrix GetGeometryOffset();
 
 		RotationOrder GetRotationOrder();
 
+		Matrix EvaluateGlobalTransform(Time time);
+
 		int GetMaterialCount();
-		Material^ GetMaterial(int index);
+		Material^ GetMaterial(int materialIndex);
 	};
 }

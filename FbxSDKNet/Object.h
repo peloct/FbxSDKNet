@@ -15,7 +15,7 @@ namespace FbxSDK
 		Object(FbxObject* object) : object(object) {}
 
 	public:
-		String^ GetName() { return gcnew String(object->GetName()); }
+		String^ GetName();
 
 		bool operator==(const Object^ other)
 		{

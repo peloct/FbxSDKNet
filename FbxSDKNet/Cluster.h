@@ -4,8 +4,6 @@
 #include "Types.h"
 #include "Object.h"
 
-using namespace System;
-
 namespace FbxSDK
 {
 	ref class Node;
@@ -29,11 +27,12 @@ namespace FbxSDK
 		LinkMode GetLinkMode();
 		Node^ GetLink();
 		int GetControlIndicesCount();
-		int GetControlPointIndex(int index);
-		double GetControlPointWeight(int index);
+		int GetControlPointIndex(int indicesArrayIndex);
+		double GetControlPointWeight(int indicesArrayIndex);
 		Matrix GetTransformMatrix();
 		Matrix GetTransformLinkMatrix();
 		bool HasAssociateModel();
+		Node^ GetAssociateModel();
 		Matrix GetTransformAssociateModelMatrix();
 	};
 }

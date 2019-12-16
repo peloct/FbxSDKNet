@@ -3,8 +3,6 @@
 #include <fbxsdk.h>
 #include "Object.h"
 
-using namespace System;
-
 namespace FbxSDK
 {
 	ref class TextureInfo;

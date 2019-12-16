@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fbxsdk.h>
+
 using namespace System;
 
 namespace FbxSDK
@@ -70,5 +72,23 @@ namespace FbxSDK
 		}
 
 		String^ ToString() override;
+
+	internal:
+		Matrix(FbxAMatrix& matrix)
+		{
+			FbxVector4 t = matrix.GetT();
+			FbxVector4 r = matrix.GetR();
+			FbxVector4 s = matrix.GetS();
+			this->translation = Vector3(t[0], t[1], t[2]);
+			this->rotation = Vector3(r[0], r[1], r[2]);
+			this->scaling = Vector3(s[0], s[1], s[2]);
+		}
+
+		Matrix(FbxVector4& translation, FbxVector4& rotation, FbxVector4& scaling)
+		{
+			this->translation = Vector3(translation[0], translation[1], translation[2]);
+			this->rotation = Vector3(rotation[0], rotation[1], rotation[2]);
+			this->scaling = Vector3(scaling[0], scaling[1], scaling[2]);
+		}
 	};
 }

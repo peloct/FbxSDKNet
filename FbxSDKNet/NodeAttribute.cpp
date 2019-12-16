@@ -2,20 +2,21 @@
 #include "NodeAttribute.h"
 #include "Mesh.h"
 
-using namespace FbxSDK;
-
-NodeAttributeType FbxSDK::ConvertAttributeType(FbxNodeAttribute::EType attributeType)
+namespace FbxSDK
 {
-	return static_cast<NodeAttributeType>(static_cast<int>(attributeType));
-}
-
-NodeAttribute^ FbxSDK::ConvertNodeAttribute(Node^ node, FbxNodeAttribute* attribute)
-{
-	switch (attribute->GetAttributeType())
+	NodeAttributeType ConvertAttributeType(FbxNodeAttribute::EType attributeType)
 	{
-	case FbxNodeAttribute::EType::eMesh:
-		return gcnew Mesh(node, static_cast<FbxMesh*>(attribute));
-	default:
-		return nullptr;
+		return static_cast<NodeAttributeType>(static_cast<int>(attributeType));
+	}
+
+	NodeAttribute^ ConvertNodeAttribute(Node^ node, FbxNodeAttribute* attribute)
+	{
+		switch (attribute->GetAttributeType())
+		{
+		case FbxNodeAttribute::EType::eMesh:
+			return gcnew Mesh(node, static_cast<FbxMesh*>(attribute));
+		default:
+			return nullptr;
+		}
 	}
 }

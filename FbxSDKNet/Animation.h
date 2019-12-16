@@ -2,6 +2,7 @@
 
 #include <fbxsdk.h>
 #include "Object.h"
+#include "Time.h"
 
 namespace FbxSDK
 {
@@ -49,7 +50,7 @@ namespace FbxSDK
 
 	public:
 		int GetKeyCount();
-		double GetKeyTimeSecond(int index);
+		Time GetKeyTime(int index);
 		double GetKeyValue(int index);
 		AnimationInterpolationType GetKeyInterpolation(int index);
 	};
@@ -68,14 +69,12 @@ namespace FbxSDK
 
 	public ref class AnimationStack : Object
 	{
-	private:
-		FbxAnimStack* animStack;
-
 	internal:
+		FbxAnimStack* animStack;
 		AnimationStack(FbxAnimStack* animStack) : Object(animStack), animStack(animStack) {}
 
 	public:
 		int GetAnimationLayerCount();
-		AnimationLayer^ GetAnimationLayer(int index);
+		AnimationLayer^ GetAnimationLayer(int layerIndex);
 	};
 }

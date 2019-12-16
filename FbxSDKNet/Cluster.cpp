@@ -2,67 +2,67 @@
 #include "Node.h"
 #include "Cluster.h"
 
-using namespace FbxSDK;
-
-LinkMode Cluster::GetLinkMode()
+namespace FbxSDK
 {
-	return static_cast<LinkMode>(static_cast<int>(cluster->GetLinkMode()));
-}
+	LinkMode Cluster::GetLinkMode()
+	{
+		return static_cast<LinkMode>(static_cast<int>(cluster->GetLinkMode()));
+	}
 
-Node^ Cluster::GetLink()
-{
-	FbxNode* node = cluster->GetLink();
-	if (node == nullptr)
-		return nullptr;
-	return gcnew Node(node);
-}
+	Node^ Cluster::GetLink()
+	{
+		FbxNode* node = cluster->GetLink();
+		if (node == nullptr)
+			return nullptr;
+		return gcnew Node(node);
+	}
 
-int Cluster::GetControlIndicesCount()
-{
-	return cluster->GetControlPointIndicesCount();
-}
+	int Cluster::GetControlIndicesCount()
+	{
+		return cluster->GetControlPointIndicesCount();
+	}
 
-int Cluster::GetControlPointIndex(int index)
-{
-	return cluster->GetControlPointIndices()[index];
-}
+	int Cluster::GetControlPointIndex(int indicesArrayIndex)
+	{
+		return cluster->GetControlPointIndices()[indicesArrayIndex];
+	}
 
-double Cluster::GetControlPointWeight(int index)
-{
-	return cluster->GetControlPointWeights()[index];
-}
+	double Cluster::GetControlPointWeight(int indicesArrayIndex)
+	{
+		return cluster->GetControlPointWeights()[indicesArrayIndex];
+	}
 
-Matrix ConvertMatrix(FbxAMatrix& matrix)
-{
-	FbxVector4 t = matrix.GetT();
-	FbxVector4 r = matrix.GetR();
-	FbxVector4 s = matrix.GetS();
+	Matrix Cluster::GetTransformMatrix()
+	{
+		FbxAMatrix matrix;
+		cluster->GetTransformMatrix(matrix);
+		return Matrix(matrix);
+	}
 
-	return Matrix(Vector3(t[0], t[1], t[2]), Vector3(r[0], r[1], r[2]), Vector3(s[0], s[1], s[2]));
-}
+	Matrix Cluster::GetTransformLinkMatrix()
+	{
+		FbxAMatrix matrix;
+		cluster->GetTransformLinkMatrix(matrix);
+		return Matrix(matrix);
+	}
 
-Matrix Cluster::GetTransformMatrix()
-{
-	FbxAMatrix matrix;
-	matrix = cluster->GetTransformMatrix(matrix);
-	return ConvertMatrix(matrix);
-}
+	bool Cluster::HasAssociateModel()
+	{
+		return cluster->GetAssociateModel() != nullptr;
+	}
 
-Matrix Cluster::GetTransformLinkMatrix()
-{
-	FbxAMatrix matrix;
-	matrix = cluster->GetTransformLinkMatrix(matrix);
-	return ConvertMatrix(matrix);
-}
+	Node^ Cluster::GetAssociateModel()
+	{
+		FbxNode* node = cluster->GetAssociateModel();
+		if (node == nullptr)
+			return nullptr;
+		return gcnew Node(node);
+	}
 
-bool Cluster::HasAssociateModel()
-{
-	return cluster->GetAssociateModel() != nullptr;
-}
-
-Matrix Cluster::GetTransformAssociateModelMatrix()
-{
-	FbxAMatrix matrix;
-	matrix = cluster->GetTransformAssociateModelMatrix(matrix);
-	return ConvertMatrix(matrix);
+	Matrix Cluster::GetTransformAssociateModelMatrix()
+	{
+		FbxAMatrix matrix;
+		cluster->GetTransformAssociateModelMatrix(matrix);
+		return Matrix(matrix);
+	}
 }

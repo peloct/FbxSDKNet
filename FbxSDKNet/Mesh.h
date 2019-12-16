@@ -8,7 +8,7 @@ using namespace System;
 
 namespace FbxSDK
 {
-	ref class Cluster;
+	ref class Skin;
 
 	public enum class VertexElementType
 	{
@@ -39,7 +39,7 @@ namespace FbxSDK
 		Color GetColor(int elementIndex, int polygonIndex, int positionInPolygon);
 		int GetMaterialMapping(int elementIndex, int polygonIndex);
 		int GetSkinDeformerCount();
-		int GetClusterCount(int skinDeformerIndex);
-		Cluster^ GetCluster(int skinDeformerIndex, int clusterIndex);
+		Skin^ GetSkinDeformer(int skinDeformerIndex);
+		// No support for a "VertexCache" and "Shape" deformer at the moment
 	};
 }
