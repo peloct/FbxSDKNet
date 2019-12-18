@@ -37,6 +37,9 @@ namespace FbxSDK
 		}
 
 		String^ ToString() override;
+
+	internal:
+		Vector3(const FbxVector4& vector) : x(vector[0]), y(vector[1]), z(vector[2]) {}
 	};
 
 	public value struct Color
@@ -63,6 +66,7 @@ namespace FbxSDK
 		Vector3 translation;
 		Vector3 rotation;
 		Vector3 scaling;
+		// TODO : 여기에 Rotation Order 가 오도록 할 것.
 
 		Matrix(Vector3& translation, Vector3& rotation, Vector3& scaling) : translation(translation), rotation(rotation), scaling(scaling) {}
 

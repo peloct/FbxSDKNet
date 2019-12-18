@@ -14,6 +14,11 @@ namespace FbxSDK
 	template <typename GeometryElement, typename ValueType>
 	bool ReadGeometryElement(GeometryElement* geometryElement, int controlPointIndex, int vertexIndex, ValueType& result);
 
+	int Mesh::GetControlPointsCount()
+	{
+		return mesh->GetControlPointsCount();
+	}
+
 	int Mesh::GetPolygonCount()
 	{
 		return mesh->GetPolygonCount();
@@ -40,10 +45,19 @@ namespace FbxSDK
 		return 0;
 	}
 
+	Vector3 Mesh::GetControlPoint(int controlPointIndex)
+	{
+		return Vector3(mesh->GetControlPointAt(controlPointIndex));
+	}
+
+	int Mesh::GetControlPointIndex(int polygonIndex, int positionInPolygon)
+	{
+		return mesh->GetPolygonVertex(polygonIndex, positionInPolygon);
+	}
+
 	Vector3 Mesh::GetCoordinate(int polygonIndex, int positionInPolygon)
 	{
-		FbxVector4 vector = mesh->GetControlPoints()[mesh->GetPolygonVertex(polygonIndex, positionInPolygon)];
-		return Vector3(vector[0], vector[1], vector[2]);
+		return Vector3(mesh->GetControlPoints()[mesh->GetPolygonVertex(polygonIndex, positionInPolygon)]);
 	}
 
 	Vector3 Mesh::GetNormal(int elementIndex, int polygonIndex, int positionInPolygon)

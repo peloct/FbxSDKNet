@@ -29,8 +29,11 @@ namespace FbxSDK
 		Mesh(Node^ node, FbxMesh* mesh) : NodeAttribute(node, mesh), mesh(mesh) {}
 
 	public:
+		int GetControlPointsCount();
 		int GetPolygonCount();
 		int GetElementCount(VertexElementType elementType);
+		Vector3 GetControlPoint(int controlPointIndex);
+		int GetControlPointIndex(int polygonIndex, int positionInPolygon);
 		Vector3 GetCoordinate(int polygonIndex, int positionInPolygon);
 		Vector3 GetNormal(int elementIndex, int polygonIndex, int positionInPolygon);
 		Vector3 GetBinormal(int elementIndex, int polygonIndex, int positionInPolygon);

@@ -64,44 +64,54 @@ namespace FbxSDK
 			return Time(FBXSDK_TIME_MINUS_INFINITE);
 		}
 
-		Time operator+(const Time% rhs)
+		static Time operator+(const Time^ a, const Time^ b)
 		{
-			return Time(time + rhs.time);
+			return Time(a->time + b->time);
 		}
 
-		Time operator-(const Time% rhs)
+		static Time operator-(const Time^ a, const Time^ b)
 		{
-			return Time(time - rhs.time);
+			return Time(a->time - b->time);
 		}
 
-		void operator+=(const Time% rhs)
+		static void operator+=(Time^ a, const Time^ b)
 		{
-			time += rhs.time;
+			a->time += b->time;
 		}
 
-		void operator-=(const Time% rhs)
+		static void operator-=(Time^ a, const Time^ b)
 		{
-			time -= rhs.time;
+			a->time -= b->time;
 		}
 
-		bool operator<(const Time% rhs)
+		static bool operator<(const Time^ a, const Time^ b)
 		{
-			return time < rhs.time;
+			return a->time < b->time;
 		}
 
-		bool operator>(const Time% rhs)
+		static bool operator>(const Time^ a, const Time^ b)
 		{
-			return time > rhs.time;
+			return a->time > b->time;
 		}
 
-		bool operator<=(const Time% rhs)
+		static bool operator<=(const Time^ a, const Time^ b)
 		{
-			return time <= rhs.time;
+			return a->time <= b->time;
 		}
 
-		bool operator>=(const Time% rhs)
+		static bool operator>=(const Time^ a, const Time^ b)
 		{
-			return time >= rhs.time;
+			return a->time >= b->time;
+		}
+
+		static bool operator==(const Time^ a, const Time^ b)
+		{
+			return a->time == b->time;
+		}
+
+		static bool operator!=(const Time^ a, const Time^ b)
+		{
+			return a->time != b->time;
 		}
 	};
 	
