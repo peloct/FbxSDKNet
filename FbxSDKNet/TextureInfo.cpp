@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "TextureInfo.h"
+#include "Scene.h"
 
 namespace FbxSDK
 {
-	TextureInfo::TextureInfo(FbxTexture* texture) : Object(texture)
+	TextureInfo::TextureInfo(Scene^ scene, FbxTexture* texture) : Object(scene, texture)
 	{
 		FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(texture);
 		if (!layeredTexture)
@@ -16,6 +17,19 @@ namespace FbxSDK
 			this->layeredTexture = layeredTexture;
 			this->texture = nullptr;
 		}
+	}
+
+	TextureInfo^ TextureInfo::GetTextureInfo(Scene^ scene, FbxTexture* texture)
+	{
+		if (texture == nullptr)
+			return nullptr;
+
+		TextureInfo^ ret = static_cast<TextureInfo^>(scene->FindObject(texture));
+
+		if (ret)
+			return ret;
+		else
+			return gcnew TextureInfo(scene, texture);
 	}
 
 	bool TextureInfo::IsLayeredTexture()
@@ -48,7 +62,7 @@ namespace FbxSDK
 		if (!layeredTexture->GetTextureAlpha(index, alpha))
 			return false;
 
-		texutreInfo = gcnew TextureInfo(texture);
+		texutreInfo = TextureInfo::GetTextureInfo(GetScene(), texture);
 		return true;
 	}
 

@@ -7,6 +7,10 @@
 namespace FbxSDK
 {
 	ref class Node;
+	ref class Scene;
+	ref class AnimationStack;
+	ref class AnimationLayer;
+	ref class AnimationCurve;
 
 	public enum class AnimationCurveChannel
 	{
@@ -44,9 +48,10 @@ namespace FbxSDK
 	{
 	private:
 		FbxAnimCurve* curve;
+		AnimationCurve(AnimationLayer^ owner, FbxAnimCurve* curve);
 
 	internal:
-		AnimationCurve(FbxAnimCurve* curve) : Object(curve), curve(curve) {}
+		static AnimationCurve^ GetAnimCurve(AnimationLayer^ owner, FbxAnimCurve* curve);
 
 	public:
 		int GetKeyCount();
@@ -59,9 +64,10 @@ namespace FbxSDK
 	{
 	private:
 		FbxAnimLayer* layer;
+		AnimationLayer(AnimationStack^ owner, FbxAnimLayer* layer);
 
 	internal:
-		AnimationLayer(FbxAnimLayer* layer) : Object(layer), layer(layer) {}
+		static AnimationLayer^ GetAnimLayer(AnimationStack^ owner, FbxAnimLayer* layer);
 
 	public:
 		AnimationCurve^ GetAnimationCurve(Node^ node, AnimationCurveChannel curveChannel);
@@ -69,9 +75,12 @@ namespace FbxSDK
 
 	public ref class AnimationStack : Object
 	{
+	private:
+		AnimationStack(Scene^ owner, FbxAnimStack* animStack) : Object(owner, animStack), animStack(animStack) {}
+
 	internal:
 		FbxAnimStack* animStack;
-		AnimationStack(FbxAnimStack* animStack) : Object(animStack), animStack(animStack) {}
+		static AnimationStack^ GetAnimStack(Scene^ owner, FbxAnimStack* animStack);
 
 	public:
 		int GetAnimationLayerCount();

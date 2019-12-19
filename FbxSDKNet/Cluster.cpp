@@ -1,9 +1,26 @@
 #include "pch.h"
 #include "Node.h"
 #include "Cluster.h"
+#include "Skin.h"
+#include "Mesh.h"
+#include "Scene.h"
 
 namespace FbxSDK
 {
+	Cluster::Cluster(Skin^ owner, FbxCluster* cluster) : Object(owner->GetScene(), cluster), cluster(cluster), ownerSkin(owner) {}
+
+	Cluster^ Cluster::GetCluster(Skin^ owner, FbxCluster* cluster)
+	{
+		if (cluster == nullptr)
+			return nullptr;
+
+		Cluster^ ret = static_cast<Cluster^>(owner->GetScene()->FindObject(cluster));
+		if (ret)
+			return ret;
+		else
+			return gcnew Cluster(owner, cluster);
+	}
+
 	LinkMode Cluster::GetLinkMode()
 	{
 		return static_cast<LinkMode>(static_cast<int>(cluster->GetLinkMode()));
@@ -11,10 +28,7 @@ namespace FbxSDK
 
 	Node^ Cluster::GetLink()
 	{
-		FbxNode* node = cluster->GetLink();
-		if (node == nullptr)
-			return nullptr;
-		return gcnew Node(node);
+		return Node::GetNode(GetScene(), cluster->GetLink());
 	}
 
 	int Cluster::GetControlIndicesCount()
@@ -36,14 +50,14 @@ namespace FbxSDK
 	{
 		FbxAMatrix matrix;
 		cluster->GetTransformMatrix(matrix);
-		return Matrix(matrix);
+		return Matrix(matrix, ownerSkin->ownerMesh->GetNode()->GetRotationOrder());
 	}
 
 	Matrix Cluster::GetTransformLinkMatrix()
 	{
 		FbxAMatrix matrix;
 		cluster->GetTransformLinkMatrix(matrix);
-		return Matrix(matrix);
+		return Matrix(matrix, GetLink()->GetRotationOrder());
 	}
 
 	bool Cluster::HasAssociateModel()
@@ -53,16 +67,13 @@ namespace FbxSDK
 
 	Node^ Cluster::GetAssociateModel()
 	{
-		FbxNode* node = cluster->GetAssociateModel();
-		if (node == nullptr)
-			return nullptr;
-		return gcnew Node(node);
+		return Node::GetNode(GetScene(), cluster->GetAssociateModel());
 	}
 
 	Matrix Cluster::GetTransformAssociateModelMatrix()
 	{
 		FbxAMatrix matrix;
 		cluster->GetTransformAssociateModelMatrix(matrix);
-		return Matrix(matrix);
+		return Matrix(matrix, GetAssociateModel()->GetRotationOrder());
 	}
 }

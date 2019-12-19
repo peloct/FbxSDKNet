@@ -44,7 +44,7 @@ namespace FbxSDK
 		FbxNodeAttribute* attribute;
 
 	protected:
-		NodeAttribute(Node^ node, FbxNodeAttribute* attribute) : Object(attribute), node(node), attribute(attribute) {}
+		NodeAttribute(Node^ node, FbxNodeAttribute* attribute);
 
 	public:
 		NodeAttributeType GetAttributeType() { return ConvertAttributeType(attribute->GetAttributeType()); }

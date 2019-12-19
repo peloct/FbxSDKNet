@@ -1,9 +1,22 @@
 #include "pch.h"
 #include "Animation.h"
 #include "Node.h"
+#include "Scene.h"
 
 namespace FbxSDK
 {
+	AnimationStack^ AnimationStack::GetAnimStack(Scene^ scene, FbxAnimStack* animStack)
+	{
+		if (animStack == nullptr)
+			return nullptr;
+
+		AnimationStack^ ret = static_cast<AnimationStack^>(scene->FindObject(animStack));
+		if (ret)
+			return ret;
+		else
+			return gcnew AnimationStack(scene, animStack);
+	}
+
 	int AnimationStack::GetAnimationLayerCount()
 	{
 		return animStack->GetMemberCount<FbxAnimLayer>();
@@ -11,7 +24,21 @@ namespace FbxSDK
 
 	AnimationLayer^ AnimationStack::GetAnimationLayer(int layerIndex)
 	{
-		return gcnew AnimationLayer(animStack->GetMember<FbxAnimLayer>(layerIndex));
+		return AnimationLayer::GetAnimLayer(this, animStack->GetMember<FbxAnimLayer>(layerIndex));
+	}
+
+	AnimationLayer::AnimationLayer(AnimationStack^ owner, FbxAnimLayer* layer) : Object(owner->GetScene(), layer), layer(layer) {}
+
+	AnimationLayer^ AnimationLayer::GetAnimLayer(AnimationStack^ owner, FbxAnimLayer* layer)
+	{
+		if (layer == nullptr)
+			return nullptr;
+
+		AnimationLayer^ ret = static_cast<AnimationLayer^>(owner->GetScene()->FindObject(layer));
+		if (ret)
+			return ret;
+		else
+			return gcnew AnimationLayer(owner, layer);
 	}
 
 	AnimationCurve^ AnimationLayer::GetAnimationCurve(Node^ node, AnimationCurveChannel curveChannel)
@@ -137,7 +164,21 @@ namespace FbxSDK
 		curve->KeyGetTime(0);
 		curve->KeyGetValue(0);
 		curve->KeyGetInterpolation(0);
-		return gcnew AnimationCurve(curve);
+		return AnimationCurve::GetAnimCurve(this, curve);
+	}
+
+	AnimationCurve::AnimationCurve(AnimationLayer^ owner, FbxAnimCurve* curve) : Object(owner->GetScene(), curve), curve(curve) {}
+
+	AnimationCurve^ AnimationCurve::GetAnimCurve(AnimationLayer^ owner, FbxAnimCurve* curve)
+	{
+		if (curve == nullptr)
+			return nullptr;
+
+		AnimationCurve^ ret = static_cast<AnimationCurve^>(owner->GetScene()->FindObject(curve));
+		if (ret)
+			return ret;
+		else
+			return gcnew AnimationCurve(owner, curve);
 	}
 
 	int AnimationCurve::GetKeyCount()

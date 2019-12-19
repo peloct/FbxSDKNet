@@ -1,22 +1,49 @@
 #include "pch.h"
 #include "Node.h"
+#include "Scene.h"
 #include "NodeAttribute.h"
 #include "Material.h"
 
 namespace FbxSDK
 {
+	Node^ Node::GetNode(Scene^ scene, FbxNode* node)
+	{
+		if (node == nullptr)
+			return nullptr;
+
+		Node^ ret = static_cast<Node^>(scene->FindObject(node));
+
+		if (ret)
+			return ret;
+		else
+			return gcnew Node(scene, node);
+	}
+
 	Node^ Node::GetChild(int index)
 	{
+		if (!isChildrenArrayValid)
+			childrenArray = gcnew array<Node^>(GetChildCount());
+
+		isChildrenArrayValid = true;
+
 		FbxNode* child = node->GetChild(index);
-		if (child == nullptr)
+
+		if (!child)
 			return nullptr;
-		else
-			return gcnew Node(child);
+
+		if (childrenArray[index] == nullptr)
+			childrenArray[index] = GetNode(GetScene(), child);
+		return childrenArray[index];
 	}
 
 	Node^ Node::GetParent()
 	{
-		return gcnew Node(node->GetParent());
+		if (isParentNodeValid)
+			return parentNode;
+
+		isParentNodeValid = true;
+		parentNode = GetNode(GetScene(), node->GetParent());
+		return parentNode;
 	}
 
 	int Node::GetChildCount()
@@ -26,10 +53,12 @@ namespace FbxSDK
 
 	Node^ Node::GetTarget()
 	{
-		FbxNode* fbxNode = node->GetTarget();
-		if (fbxNode == nullptr)
-			return nullptr;
-		return gcnew Node(fbxNode);
+		if (isTargetNodeValid)
+			return targetNode;
+
+		isTargetNodeValid = true;
+		targetNode = GetNode(GetScene(), node->GetTarget());
+		return targetNode;
 	}
 
 	NodeAttribute^ Node::GetAttribute()
@@ -60,7 +89,7 @@ namespace FbxSDK
 
 	Matrix Node::GetGeometryOffset()
 	{
-		return Matrix(node->GetGeometricTranslation(FbxNode::eSourcePivot), node->GetGeometricRotation(FbxNode::eSourcePivot), node->GetGeometricScaling(FbxNode::eSourcePivot));
+		return Matrix(node->GetGeometricTranslation(FbxNode::eSourcePivot), node->GetGeometricRotation(FbxNode::eSourcePivot), node->GetGeometricScaling(FbxNode::eSourcePivot), GetRotationOrder());
 	}
 
 	RotationOrder Node::GetRotationOrder()
@@ -72,7 +101,7 @@ namespace FbxSDK
 
 	Matrix Node::EvaluateGlobalTransform(Time time)
 	{
-		return Matrix(node->EvaluateGlobalTransform(time.ToFbxTime()));
+		return Matrix(node->EvaluateGlobalTransform(time.ToFbxTime()), GetRotationOrder());
 	}
 
 	int Node::GetMaterialCount()
@@ -82,10 +111,6 @@ namespace FbxSDK
 
 	Material^ Node::GetMaterial(int materialIndex)
 	{
-		FbxSurfaceMaterial* material = node->GetMaterial(materialIndex);
-		if (material)
-			return gcnew Material(material);
-		return nullptr;
+		return Material::GetMaterial(GetScene(), node->GetMaterial(materialIndex));
 	}
-
 }

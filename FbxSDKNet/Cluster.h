@@ -7,6 +7,7 @@
 namespace FbxSDK
 {
 	ref class Node;
+	ref class Skin;
 
 	public enum class LinkMode
 	{
@@ -19,9 +20,11 @@ namespace FbxSDK
 	{
 	private:
 		FbxCluster* cluster;
+		Cluster(Skin^ owner, FbxCluster* cluster);
 
 	internal:
-		Cluster(FbxCluster* cluster) : Object(cluster), cluster(cluster) {}
+		Skin^ ownerSkin;
+		static Cluster^ GetCluster(Skin^ owner, FbxCluster* cluster);
 
 	public:
 		LinkMode GetLinkMode();

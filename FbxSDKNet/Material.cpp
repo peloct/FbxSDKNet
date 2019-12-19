@@ -1,9 +1,23 @@
 #include "pch.h"
 #include "Material.h"
 #include "TextureInfo.h"
+#include "Scene.h"
 
 namespace FbxSDK
 {
+	Material^ Material::GetMaterial(Scene^ scene, FbxSurfaceMaterial* material)
+	{
+		if (material == nullptr)
+			return nullptr;
+
+		Material^ ret = static_cast<Material^>(scene->FindObject(material));
+
+		if (ret)
+			return ret;
+		else
+			return gcnew Material(scene, material);
+	}
+
 	array<TextureInfo^>^ Material::GetTextureInfo(TextureChannel textureChannel)
 	{
 		FbxProperty prop;
@@ -64,7 +78,7 @@ namespace FbxSDK
 			int textureCount = prop.GetSrcObjectCount<FbxTexture>();
 			array<TextureInfo^>^ ret = gcnew array<TextureInfo^>(textureCount);
 			for (int i = 0; i < textureCount; ++i)
-				ret[i] = gcnew TextureInfo(prop.GetSrcObject<FbxTexture>(i));
+				ret[i] = TextureInfo::GetTextureInfo(GetScene(), prop.GetSrcObject<FbxTexture>(i));
 			return ret;
 		}
 		else

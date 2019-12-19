@@ -6,20 +6,19 @@ using namespace System;
 
 namespace FbxSDK
 {
+	ref class Scene;
+
 	public ref class Object
 	{
 	private:
+		Scene^ ownerScene;
 		FbxObject* object;
 
 	protected:
-		Object(FbxObject* object) : object(object) {}
+		Object(Scene^ owner, FbxObject* object);
 
 	public:
 		String^ GetName();
-
-		bool operator==(const Object^ other)
-		{
-			return object->operator==(*other->object);
-		}
+		Scene^ GetScene() { return ownerScene; }
 	};
 }

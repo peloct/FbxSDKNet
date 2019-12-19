@@ -98,7 +98,7 @@ namespace FbxSDK
 
 	Skin^ Mesh::GetSkinDeformer(int skinDeformerIndex)
 	{
-		return gcnew Skin((FbxSkin*)mesh->GetDeformer(skinDeformerIndex, FbxDeformer::eSkin));
+		return Skin::GetSkin(this, (FbxSkin*)mesh->GetDeformer(skinDeformerIndex, FbxDeformer::eSkin));
 	}
 
 	Vector3 ReadNormal(FbxMesh* mesh, int elementIndex, int controlPointIndex, int vertexIndex)

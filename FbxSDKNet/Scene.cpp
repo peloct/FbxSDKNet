@@ -5,9 +5,12 @@
 #include "Node.h"
 #include "Animation.h"
 #include "Pose.h"
+#include "Object.h"
 
 namespace FbxSDK
 {
+	using namespace System::Collections::Generic;
+
 	Scene::!Scene()
 	{
 		if (!sceneReference->isDisposed)
@@ -17,9 +20,35 @@ namespace FbxSDK
 		manager = nullptr;
 	}
 
+	void Scene::AddObject(void* pointer, FbxSDK::Object^ object)
+	{
+		objectDic->Add((long long)pointer, object);
+	}
+
+	FbxSDK::Object^ Scene::FindObject(void* pointer)
+	{
+		long long address = (long long)pointer;
+
+		if (address == 0)
+			return nullptr;
+
+		FbxSDK::Object^ ret = nullptr;
+		objectDic->TryGetValue(address, ret);
+		return ret;
+	}
+
+	Scene::Scene(Manager^ manager, SceneReference^ sceneReference) : manager(manager), sceneReference(sceneReference)
+	{
+		objectDic = gcnew Dictionary<long long, FbxSDK::Object^>();
+	}
+
 	Node^ Scene::GetRootNode()
 	{
-		return gcnew Node(sceneReference->scene->GetRootNode());
+		if (rootNode)
+			return rootNode;
+
+		rootNode = Node::GetNode(this, sceneReference->scene->GetRootNode());
+		return rootNode;
 	}
 
 	int Scene::GetAnimStackCount()
@@ -29,7 +58,8 @@ namespace FbxSDK
 
 	AnimationStack^ Scene::GetAnimStack(int animationStackIndex)
 	{
-		return gcnew AnimationStack(sceneReference->scene->GetSrcObject<FbxAnimStack>(animationStackIndex));
+		FbxAnimStack* animStack = sceneReference->scene->GetSrcObject<FbxAnimStack>(animationStackIndex);
+		return AnimationStack::GetAnimStack(this, animStack);
 	}
 
 	void Scene::SetCurrentAnimStack(AnimationStack^ animationStack)
@@ -91,6 +121,6 @@ namespace FbxSDK
 
 	Pose^ Scene::GetPose(int poseIndex)
 	{
-		return gcnew Pose(sceneReference->scene->GetPose(poseIndex));
+		return Pose::GetPose(this, sceneReference->scene->GetPose(poseIndex));
 	}
 }

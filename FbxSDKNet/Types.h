@@ -6,6 +6,17 @@ using namespace System;
 
 namespace FbxSDK
 {
+	public enum class RotationOrder
+	{
+		EulerXYZ,
+		EulerXZY,
+		EulerYXZ,
+		EulerYZX,
+		EulerZXY,
+		EulerZYX,
+		SphericXYZ
+	};
+
 	public value struct Vector2
 	{
 	public:
@@ -66,9 +77,9 @@ namespace FbxSDK
 		Vector3 translation;
 		Vector3 rotation;
 		Vector3 scaling;
-		// TODO : 여기에 Rotation Order 가 오도록 할 것.
+		RotationOrder rotationOrder;
 
-		Matrix(Vector3& translation, Vector3& rotation, Vector3& scaling) : translation(translation), rotation(rotation), scaling(scaling) {}
+		Matrix(Vector3& translation, Vector3& rotation, Vector3& scaling, RotationOrder rotationOrder) : translation(translation), rotation(rotation), scaling(scaling), rotationOrder(rotationOrder) {}
 
 		bool operator==(const Matrix^% other)
 		{
@@ -78,7 +89,7 @@ namespace FbxSDK
 		String^ ToString() override;
 
 	internal:
-		Matrix(FbxAMatrix& matrix)
+		Matrix(FbxAMatrix& matrix, RotationOrder rotationOrder)
 		{
 			FbxVector4 t = matrix.GetT();
 			FbxVector4 r = matrix.GetR();
@@ -86,13 +97,15 @@ namespace FbxSDK
 			this->translation = Vector3(t[0], t[1], t[2]);
 			this->rotation = Vector3(r[0], r[1], r[2]);
 			this->scaling = Vector3(s[0], s[1], s[2]);
+			this->rotationOrder = rotationOrder;
 		}
 
-		Matrix(FbxVector4& translation, FbxVector4& rotation, FbxVector4& scaling)
+		Matrix(FbxVector4& translation, FbxVector4& rotation, FbxVector4& scaling, RotationOrder rotationOrder)
 		{
 			this->translation = Vector3(translation[0], translation[1], translation[2]);
 			this->rotation = Vector3(rotation[0], rotation[1], rotation[2]);
 			this->scaling = Vector3(scaling[0], scaling[1], scaling[2]);
+			this->rotationOrder = rotationOrder;
 		}
 	};
 }

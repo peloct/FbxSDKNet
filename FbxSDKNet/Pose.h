@@ -1,19 +1,22 @@
 #pragma once
 #include <fbxsdk.h>
 #include "Types.h"
+#include "Object.h"
 
 namespace FbxSDK
 {
 	ref class Node;
+	ref class Scene;
 
-	public ref class Pose
+	public ref class Pose : Object
 	{
 	private:
 		FbxPose* pose;
+		Pose(Scene^ scene, FbxPose* pose) : Object(scene, pose), pose(pose) {}
 
 	internal:
-		Pose(FbxPose* pose) : pose(pose) {}
-		
+		static Pose^ GetPose(Scene^ scene, FbxPose* pose);
+
 	public:
 		int Find(Node^ node);
 		bool IsBindPose();

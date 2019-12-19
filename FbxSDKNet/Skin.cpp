@@ -1,9 +1,25 @@
 #include "pch.h"
 #include "Skin.h"
 #include "Cluster.h"
+#include "Mesh.h"
+#include "Scene.h"
 
 namespace FbxSDK
 {
+	Skin::Skin(Mesh^ owner, FbxSkin* skin) : Object(owner->GetScene(), skin), skin(skin), ownerMesh(owner) {}
+
+	Skin^ Skin::GetSkin(Mesh^ owner, FbxSkin* skin)
+	{
+		if (skin == nullptr)
+			return nullptr;
+
+		Skin^ ret = static_cast<Skin^>(owner->GetScene()->FindObject(skin));
+		if (ret)
+			return ret;
+		else
+			return gcnew Skin(owner, skin);
+	}
+
 	SkinningType Skin::GetSkinningType()
 	{
 		return static_cast<SkinningType>(skin->GetSkinningType());
@@ -16,7 +32,7 @@ namespace FbxSDK
 
 	Cluster^ Skin::GetCluster(int clusterIndex)
 	{
-		return gcnew Cluster(skin->GetCluster(clusterIndex));
+		return Cluster::GetCluster(this, skin->GetCluster(clusterIndex));
 	}
 
 	int Skin::GetControlPointIndicesCount()

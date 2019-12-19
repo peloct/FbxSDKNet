@@ -1,5 +1,6 @@
 #pragma once
 #include <fbxsdk.h>
+#include "Object.h"
 
 namespace FbxSDK
 {
@@ -11,15 +12,18 @@ namespace FbxSDK
 		Blend
 	};
 
+	ref class Mesh;
 	ref class Cluster;
 
-	public ref class Skin
+	public ref class Skin : Object
 	{
 	private:
 		FbxSkin* skin;
+		Skin(Mesh^ owner, FbxSkin* skin);
 
 	internal:
-		Skin(FbxSkin* skin) : skin(skin) {}
+		Mesh^ ownerMesh;
+		static Skin^ GetSkin(Mesh^ owner, FbxSkin* skin);
 
 	public:
 		SkinningType GetSkinningType();

@@ -9,27 +9,32 @@ using namespace System;
 
 namespace FbxSDK
 {
+	ref class Scene;
 	ref class Mesh;
 	ref class NodeAttribute;
 	ref class Material;
 	ref class Pose;
 
-	public enum class RotationOrder
-	{
-		EulerXYZ,
-		EulerXZY,
-		EulerYXZ,
-		EulerYZX,
-		EulerZXY,
-		EulerZYX,
-		SphericXYZ
-	};
-
 	public ref class Node : Object
 	{
+	private:
+		bool isParentNodeValid;
+		Node^ parentNode;
+
+		bool isTargetNodeValid;
+		Node^ targetNode;
+
+		bool isChildrenArrayValid;
+		array<Node^>^ childrenArray;
+		
+		Node(Scene^ owner, FbxNode* node) : Object(owner, node), node(node),
+			isParentNodeValid(false), parentNode(nullptr),
+			isTargetNodeValid(false), targetNode(nullptr),
+			isChildrenArrayValid(false), childrenArray(nullptr) {}
+
 	internal:
 		FbxNode* node;
-		Node(FbxNode* node) : Object(node), node(node) {}
+		static Node^ GetNode(Scene^ scene, FbxNode* node);
 
 	public:
 		Node^ GetChild(int index);

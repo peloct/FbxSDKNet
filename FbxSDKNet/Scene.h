@@ -4,6 +4,7 @@
 
 namespace FbxSDK
 {
+	ref class Object;
 	ref class Manager;
 	ref class SceneReference;
 	ref class Node;
@@ -40,6 +41,9 @@ namespace FbxSDK
 	public ref class Scene
 	{
 	private:
+		System::Collections::Generic::Dictionary<long long, FbxSDK::Object^>^ objectDic;
+		
+		Node^ rootNode;
 		Manager^ manager;
 		SceneReference^ sceneReference;
 
@@ -47,7 +51,9 @@ namespace FbxSDK
 		!Scene();
 
 	internal:
-		Scene(Manager^ manager, SceneReference^ sceneReference) : manager(manager), sceneReference(sceneReference) {}
+		void AddObject(void* pointer, FbxSDK::Object^ object);
+		FbxSDK::Object^ FindObject(void* pointer);
+		Scene(Manager^ manager, SceneReference^ sceneReference);
 
 	public:
 		Node^ GetRootNode();

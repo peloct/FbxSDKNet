@@ -31,9 +31,10 @@ namespace FbxSDK
 	{
 	private:
 		FbxSurfaceMaterial* material;
+		Material(Scene^ scene, FbxSurfaceMaterial* material) : Object(scene, material), material(material) {}
 
 	internal:
-		Material(FbxSurfaceMaterial* material) : Object(material), material(material) {}
+		static Material^ GetMaterial(Scene^ scene, FbxSurfaceMaterial* material);
 
 	public:
 		array<TextureInfo^>^ GetTextureInfo(TextureChannel textureChannel);

@@ -82,9 +82,10 @@ namespace FbxSDK
 	private:
 		FbxLayeredTexture* layeredTexture;
 		FbxTexture* texture;
+		TextureInfo(Scene^ scene, FbxTexture* texture);
 
 	internal:
-		TextureInfo(FbxTexture* texture);
+		static TextureInfo^ GetTextureInfo(Scene^ scene, FbxTexture* texture);
 
 	public:
 		bool IsLayeredTexture();
